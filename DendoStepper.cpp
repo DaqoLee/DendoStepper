@@ -13,7 +13,7 @@ void DendoStepper::config(DendoStepper_config_t* config){
 }
 
 void DendoStepper::setEn(bool state){
-    ESP_ERROR_CHECK(gpio_set_level((gpio_num_t)conf->step_p,state));
+    ESP_ERROR_CHECK(gpio_set_level((gpio_num_t)conf->en_p,state));
 }
 
 void DendoStepper::setDir(bool state){
@@ -22,12 +22,12 @@ void DendoStepper::setDir(bool state){
 }
 
 void DendoStepper::disableMotor(){
-    setEn(true);
+    setEn(false);
     ctrl.status=MDISABLED;
 }
 
 void DendoStepper::enableMotor(){
-    setEn(false);
+    setEn(true);
     ctrl.status=IDLE;
 }
 
@@ -74,7 +74,7 @@ bool DendoStepper::xISR()
 
 void DendoStepper::init()
 {
-    uint64_t mask = (1 << conf->step_p) | (1 << conf->dir_p) | (1 << conf->en_p);
+    uint64_t mask = (1ULL << conf->step_p) | (11ULL << conf->dir_p) | (11ULL << conf->en_p);
     gpio_config_t gpio_conf = {
         .pin_bit_mask = mask,
         .mode = GPIO_MODE_OUTPUT,
@@ -86,7 +86,7 @@ void DendoStepper::init()
     ESP_ERROR_CHECK(gpio_config(&gpio_conf));
 
     if(conf->endSw_p!=ENDSW_DISABLED){
-        mask=(1<<conf->endSw_p);
+        mask=(1ULL<<conf->endSw_p);
         gpio_conf={
             .pin_bit_mask=mask,
             .mode=GPIO_MODE_INPUT,
